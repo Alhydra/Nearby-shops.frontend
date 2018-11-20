@@ -25,3 +25,7 @@ li > a:hover {
 .App {
   height:100%
 }
+
+.active {
+  text-decoration: underline
+}

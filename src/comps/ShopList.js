@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from "axios"
 import { Button, Segment, Image, Grid } from 'semantic-ui-react'
+import Header from "./Header"
 
 // calculate distance between 2 coordinance and return distance in Km
 const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2)=> {
@@ -58,10 +59,15 @@ class ShopList extends Component {
     }
 
     componentWillMount(){
+        const token = localStorage.getItem('MyToken');
+
+        if(!token){
+            window.location = 'http://localhost:3000';
+
+        }
 
         console.log("user",this.props.user)
         // get shops list from the server
-        const token= localStorage.getItem("MyToken")
         const header = {
             headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','x-access-token':token }
         }
@@ -96,14 +102,18 @@ class ShopList extends Component {
 
         // render shops list component
         return (
-            <div style={styles.shopList} >
-                {
-                    <Grid style={{width:"60%"}} centered columns={4}>
-                        {list}
-                    </Grid >
-                
-                }
+            <div>
+                <Header />
+                <div style={styles.shopList} >
+                    {
+                        <Grid style={{width:"60%"}} centered columns={4}>
+                            {list}
+                        </Grid >
+                    
+                    }
+                </div>
             </div>
+            
         );
     }
 }
