@@ -7,9 +7,9 @@ class Header extends Component {
       return (
         <div style={styles.header} className="App-header">
             <ul>
-                <NavLink activeClassName="active" to="/nearby-shops"><li><a href="#">Neaby Shops</a></li></NavLink>
-                <NavLink activeClassName="active" to="/my-prefered-shops"><li><a href="#">my Preferred Shops</a></li></NavLink>
-                <NavLink activeClassName="active" to="/logout"><li><a href="#">Log out</a></li></NavLink>
+                <NavLink activeClassName="active" to="/nearby-shops"><li>Neaby Shops</li></NavLink>
+                <NavLink activeClassName="active" to="/my-prefered-shops"><li>my Preferred Shops</li></NavLink>
+                <NavLink activeClassName="active" to="/logout"><li>Log out</li></NavLink>
 
             </ul>
         </div>
