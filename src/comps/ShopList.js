@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from "axios"
 import { Button, Segment, Image, Grid } from 'semantic-ui-react'
 import Header from "./Header"
+import _ from "lodash"
 
 // calculate distance between 2 coordinance and return distance in Km
 const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2)=> {
@@ -53,8 +54,13 @@ class ShopList extends Component {
         super(props)
 
         // initialise initial state
+        const userLat = localStorage.getItem("userLat")
+        const userLng = localStorage.getItem("userLng")
+
         this.state={
-            shops:[]
+            shops:[],
+            userLat,
+            userLng
         }
     }
 
@@ -75,14 +81,20 @@ class ShopList extends Component {
             .then((res)=>{
             
             var shops=[]
+
+            // calculate distance from shop to user
             res.data.data.map((m)=>{
-                m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.props.user.lat,this.props.user.lng)
+                m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.state.userLat,this.state.userLng)
                 shops.push(m)
             })
+
+
+            // sort shops array by distance
+            const sortedArray = _.sortBy(shops, 'distance')
             
             // add the shops list to the state 
             this.setState({
-              shops
+              shops:sortedArray
             })
               
             })
