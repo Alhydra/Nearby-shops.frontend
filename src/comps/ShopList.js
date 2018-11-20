@@ -2,6 +2,29 @@ import React, { Component } from 'react';
 import axios from "axios"
 import { Button, Segment, Image, Grid } from 'semantic-ui-react'
 
+// calculate distance between 2 coordinance and return distance in Km
+const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2)=> {
+    // Radius of the earth in km
+    const R = 6371
+    // deg2rad below
+    const dLat = deg2rad(lat2-lat1)
+    const dLon = deg2rad(lon2-lon1)
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+       
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    // Distance in km
+    const d = R * c 
+    return d
+  }
+
+// convert degree to radian
+const deg2rad=(deg) =>{
+    return deg * (Math.PI/180)
+}
+
 
 // List Item layout component
 class ShopItem extends Component{
@@ -36,6 +59,7 @@ class ShopList extends Component {
 
     componentWillMount(){
 
+        console.log("user",this.props.user)
         // get shops list from the server
         const token= localStorage.getItem("MyToken")
         const header = {
@@ -44,9 +68,15 @@ class ShopList extends Component {
         axios.get("http://localhost:3001/api/shop",header)
             .then((res)=>{
             
+            var shops=[]
+            res.data.data.map((m)=>{
+                m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.props.user.lat,this.props.user.lng)
+                shops.push(m)
+            })
+            
             // add the shops list to the state 
             this.setState({
-              shops:res.data.data
+              shops
             })
               
             })

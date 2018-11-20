@@ -10,47 +10,60 @@ class App extends Component {
 
     // initialise initial state
     this.state={
-        user:[]
+        user:{}
     }
   }
 
   componentDidMount(){
 
     // Log in
-    const header = {
-      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', }
-    }
-
     // request body
-    const token = localStorage.getItem('MyToken')
+    const token = localStorage.getItem("MyToken")
 
     const body={
       email:"ellhydra1@gmail.com",
       password:"111222333"
     }
-    axios.post("http://localhost:3001/auth",body)
-        .then((res)=>{
-        
-        console.log(res.data)
-        // add the shops list to the state 
-        this.setState({
-          user:res.data.user
-        })
 
-        // add token to the local storage
-        localStorage.setItem('MyToken',res.data.token)
-          
+    if(token){
+
+      const header = {
+        headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','x-access-token':token }
+      }
+      // if token exists get user data
+      axios.post("http://localhost:3001/api/user",header,body)
+      .then((res)=>{
+      // add user data to the state
+      this.setState({
+        user:res.data
+      })
+
+        
+      })
+      .catch((err)=>{
+        console.log(err);
+        
+      })
+    }else{
+      //if token does not exist get a token
+      axios.post("http://localhost:3001/auth",body)
+        .then((res)=>{
+        localStorage.setItem("MyToken",res.data.token)
+        
         })
         .catch((err)=>{
           console.log(err);
           
         })
     }
+    
+  }
+    
   render() {
     return (
       <div className="App">
         <Header />
-        <ShopList />
+        <ShopList user={this.state.user}/>
       </div>
     );
   }
