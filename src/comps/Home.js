@@ -69,6 +69,45 @@ class LogInForm extends Component{
 
     }
 
+    // Sign up
+    SignUp=()=>{
+        const {email,password} = this.state
+        console.log(email,password)
+        
+        const body={
+            email,
+            password
+        }
+
+        // hide error message
+        this.setState({errMsgVisible:false})
+
+        axios.post("http://localhost:3001/api/user",body)
+        .then((res)=>{
+
+            if(res.data.success){
+                console.log("sign up success")
+                this.setState({errMsgVisible:false})
+                this.Login()
+
+            }else{
+                // display error message
+                this.setState({
+                    errMsgVisible:true,
+                    errMsg:res.data.message
+                })
+            }
+
+
+        
+        })
+        .catch((err)=>{
+            console.log(err);
+            
+        })
+
+    }
+
     render(){
         const {email,password} = this.state
 
@@ -96,7 +135,7 @@ class LogInForm extends Component{
                     <input placeholder="password" type="password" name="password" value={password} onChange={this.handleChange}/>
                     </Form.Field>
                     <Button type="submit" onClick={this.Login}>Login</Button>
-                    <Button type="submit">Sign up</Button>
+                    <Button type="submit"  onClick={this.SignUp}>Sign up</Button>
 
                 </Form>
         
