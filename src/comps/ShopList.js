@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from "axios"
 import { Button, Segment, Image, Grid } from 'semantic-ui-react'
 
+
 // List Item layout component
 class ShopItem extends Component{
     render(){
@@ -36,10 +37,11 @@ class ShopList extends Component {
     componentWillMount(){
 
         // get shops list from the server
+        const token= localStorage.getItem("MyToken")
         const header = {
-            headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', }
+            headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','x-access-token':token }
         }
-        axios.get("http://localhost:3001/shop",header)
+        axios.get("http://localhost:3001/api/shop",header)
             .then((res)=>{
             
             // add the shops list to the state 
