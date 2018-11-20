@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import './App.css';
+import axios from "axios"
+
+// Routes
 import Header from "./comps/Header"
 import ShopList from "./comps/ShopList"
-import axios from "axios"
+import Home from "./comps/Home"
 
 class App extends Component {
   constructor(props){
@@ -62,8 +65,9 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Header />
-        <ShopList user={this.state.user}/>
+        <Home />
+        {/* <Header />
+        <ShopList user={this.state.user}/> */}
       </div>
     );
   }
