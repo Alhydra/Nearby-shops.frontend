@@ -9,7 +9,6 @@ import ShopList from "./comps/ShopList"
 import Home from "./comps/Home"
 
 // Logout component
-
 const logout =()=>{
   
 }

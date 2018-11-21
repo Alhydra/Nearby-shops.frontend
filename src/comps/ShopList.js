@@ -60,11 +60,80 @@ class ShopList extends Component {
 
         this.state={
             shops:[],
+            shopsList:[],
             userLat,
             userLng,
-            userEmail
+            userEmail,
+            pathName: this.props.location.pathname
         }
+
+        this.props.history.listen((location, action) => {
+            console.log()
+            this.setState({pathName:location.pathname})
+            this.updateShopList(this.state.shops,location.pathname)
+          })
+
     }
+
+    updateShopList(shopslist,pathname){
+            // calculate distance from shop to user
+            var shops=[]
+            shopslist.map((m)=>{
+                m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.state.userLat,this.state.userLng)
+                shops.push(m)
+            })
+
+
+            // sort shops array by distance
+            const sortedArray = _.sortBy(shops, 'distance')
+            const likedShops = []
+
+
+            // remove likes shops from the main list
+            sortedArray.map((m,i)=>{
+                // if the current path is nearby shops
+                // check if the user email is included in the likes and remove the shops
+                // if the current path is preferred shops
+                // display only liked shops
+
+                m.likes.map((n)=>{
+                    if(n === this.state.userEmail){
+                        console.log("likes",n,this.state.userEmail,i)
+                        likedShops.push(sortedArray[i])
+                        sortedArray.splice(i,1)
+                    }
+                })
+
+                
+                if(pathname ==="/nearby-shops"){
+                    // add the shops list to the state 
+                    console.log("nearby")
+                    this.setState({
+                        shopsList:sortedArray
+                    })
+
+                }else if(pathname ==="/my-prefered-shops"){
+                    // add liked shops to the state
+                    console.log("pref")
+
+                    this.setState({
+                        shopsList:likedShops
+                    })
+                }
+                
+
+                
+            })
+
+            console.log("sorted",sortedArray)
+            console.log("liked",likedShops)
+            
+    }
+
+    
+    
+    
+    
 
     componentWillMount(){
         const token = localStorage.getItem('MyToken');
@@ -73,43 +142,17 @@ class ShopList extends Component {
             window.location = 'http://localhost:3000';
 
         }
-
-        console.log("user",this.props.user)
         // get shops list from the server
         const header = {
             headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','x-access-token':token }
         }
         axios.get("http://localhost:3001/api/shop",header)
             .then((res)=>{
+            this.setState({shops:res.data.data})
+            this.updateShopList(res.data.data,this.state.pathName)
             
-            var shops=[]
-
-            // calculate distance from shop to user
-            res.data.data.map((m)=>{
-                m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.state.userLat,this.state.userLng)
-                shops.push(m)
-            })
-
-
-            // sort shops array by distance
-            const sortedArray = _.sortBy(shops, 'distance')
-
-            // remove likes shops from the main list
-            sortedArray.map((m,i)=>{
-                // check if the user email is included in the likes 
-                const exists = m.likes.map((n)=>{
-                    if(n == this.state.userEmail){
-                        sortedArray.pop(i)
-                    }
-                })
-
-                
-            })
             
-            // add the shops list to the state 
-            this.setState({
-              shops:sortedArray
-            })
+            
               
             })
             .catch((err)=>{
@@ -119,8 +162,9 @@ class ShopList extends Component {
 
     }
     render() {
+        
         // generate shops list card items based on state data
-        const list = this.state.shops.map((m,i)=>{
+        const list = this.state.shopsList.map((m,i)=>{
             return(
                 <ShopItem key={i} shop={m} />
             )
