@@ -56,11 +56,13 @@ class ShopList extends Component {
         // initialise initial state
         const userLat = localStorage.getItem("userLat")
         const userLng = localStorage.getItem("userLng")
+        const userEmail = localStorage.getItem("Email")
 
         this.state={
             shops:[],
             userLat,
-            userLng
+            userLng,
+            userEmail
         }
     }
 
@@ -91,6 +93,18 @@ class ShopList extends Component {
 
             // sort shops array by distance
             const sortedArray = _.sortBy(shops, 'distance')
+
+            // remove likes shops from the main list
+            sortedArray.map((m,i)=>{
+                // check if the user email is included in the likes 
+                const exists = m.likes.map((n)=>{
+                    if(n == this.state.userEmail){
+                        sortedArray.pop(i)
+                    }
+                })
+
+                
+            })
             
             // add the shops list to the state 
             this.setState({

@@ -49,6 +49,7 @@ class LogInForm extends Component{
                 localStorage.setItem("MyToken",res.data.token)
                 localStorage.setItem("Userlat",res.data.coord.lat)
                 localStorage.setItem("UserLng",res.data.coord.lng)
+                localStorage.setItem("Email",res.data.email)
                 window.location = 'http://localhost:3000/nearby-shops';
 
             }else{
