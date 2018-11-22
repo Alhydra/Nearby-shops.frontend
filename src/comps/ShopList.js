@@ -30,9 +30,43 @@ const deg2rad=(deg) =>{
 
 // List Item layout component
 class ShopItem extends Component{
+    constructor(props){
+        super(props)
+        this.state={
+            shop:{},
+        }
+        this.updateShop=this.updateShop.bind(this)
+    }
+    updateShop(){
+        const likedArray = this.props.shop.likes
+        const userEmail = this.props.userEmail
+
+        // Update the likes list
+        likedArray.map((n,i)=>{
+            if(n === userEmail){
+                likedArray.splice(i,1)
+            }
+        })
+
+
+        const body = {
+            likes:likedArray
+        }
+        axios.put(`http://localhost:3001/api/shop/${this.props.shop._id}`,body)
+            .then((res)=>{
+            this.setState({shop:res.data.shop})
+    
+        })
+        .catch((err)=>{
+              console.log(err);
+              
+        })
+        
+
+    }
     render(){
-       return (
-        <Grid.Column >
+        //Shop item for nearby shops
+        const ShopItem = (
             <Segment style={styles.card}>
                 <h3 style={{marginBottom:10}}>{this.props.shop.name}</h3>
                 <Image style={styles.thumb} src={this.props.shop.imageUrl} />
@@ -41,6 +75,21 @@ class ShopItem extends Component{
                     <Button color="green">Like</Button>
                 </div>
             </Segment>
+        )
+        // Shop item for the preferred shops
+        const PrefShopItel = (
+            <Segment style={styles.card}>
+                <h3 style={{marginBottom:10}}>{this.props.shop.name}</h3>
+                <Image style={styles.thumb} src={this.props.shop.imageUrl} />
+                <div style={styles.buttons}>
+                    <Button color="red">Remove</Button>
+                </div>
+            </Segment>
+        )
+
+       return (
+        <Grid.Column >
+                {this.props.path ==="/nearby-shops"?ShopItem:PrefShopItel}
         </Grid.Column>
         
        )
@@ -98,7 +147,6 @@ class ShopList extends Component {
 
                 m.likes.map((n)=>{
                     if(n === this.state.userEmail){
-                        console.log("likes",n,this.state.userEmail,i)
                         likedShops.push(sortedArray[i])
                         sortedArray.splice(i,1)
                     }
@@ -107,15 +155,12 @@ class ShopList extends Component {
                 
                 if(pathname ==="/nearby-shops"){
                     // add the shops list to the state 
-                    console.log("nearby")
                     this.setState({
                         shopsList:sortedArray
                     })
 
                 }else if(pathname ==="/my-prefered-shops"){
                     // add liked shops to the state
-                    console.log("pref")
-
                     this.setState({
                         shopsList:likedShops
                     })
@@ -124,9 +169,6 @@ class ShopList extends Component {
 
                 
             })
-
-            console.log("sorted",sortedArray)
-            console.log("liked",likedShops)
             
     }
 
@@ -154,11 +196,11 @@ class ShopList extends Component {
             
             
               
-            })
-            .catch((err)=>{
+        })
+        .catch((err)=>{
               console.log(err);
               
-            })
+        })
 
     }
     render() {
@@ -166,7 +208,7 @@ class ShopList extends Component {
         // generate shops list card items based on state data
         const list = this.state.shopsList.map((m,i)=>{
             return(
-                <ShopItem key={i} shop={m} />
+                <ShopItem key={i} shop={m} userEmail={this.state.userEmail} path={this.state.pathName}/>
             )
         })
 
