@@ -35,9 +35,9 @@ class ShopItem extends Component{
         this.state={
             shop:{},
         }
-        this.updateShop=this.updateShop.bind(this)
+        this.removeShop=this.removeShop.bind(this)
     }
-    updateShop(){
+    removeShop(){
         const likedArray = this.props.shop.likes
         const userEmail = this.props.userEmail
 
@@ -54,7 +54,9 @@ class ShopItem extends Component{
         }
         axios.put(`http://localhost:3001/api/shop/${this.props.shop._id}`,body)
             .then((res)=>{
-            this.setState({shop:res.data.shop})
+            
+                // remove shop from the list
+                this.props.handleupdate(this.props.shop)
     
         })
         .catch((err)=>{
@@ -82,7 +84,7 @@ class ShopItem extends Component{
                 <h3 style={{marginBottom:10}}>{this.props.shop.name}</h3>
                 <Image style={styles.thumb} src={this.props.shop.imageUrl} />
                 <div style={styles.buttons}>
-                    <Button color="red">Remove</Button>
+                    <Button color="red" onClick={this.removeShop}>Remove</Button>
                 </div>
             </Segment>
         )
@@ -120,8 +122,23 @@ class ShopList extends Component {
             console.log()
             this.setState({pathName:location.pathname})
             this.updateShopList(this.state.shops,location.pathname)
-          })
+        })
 
+        this.updateRemovedOrLikedShops=this.updateRemovedOrLikedShops.bind(this)
+
+    }
+
+    updateRemovedOrLikedShops(shop){
+
+        const currentShopsList = this.state.shopsList
+        const index = _.findIndex(currentShopsList, (shopId)=> shopId._id== shop._id)
+        console.log("shop index",index)
+
+        currentShopsList.splice(index,1)
+
+        this.setState({
+            shopsList:currentShopsList
+        })
     }
 
     updateShopList(shopslist,pathname){
@@ -208,7 +225,7 @@ class ShopList extends Component {
         // generate shops list card items based on state data
         const list = this.state.shopsList.map((m,i)=>{
             return(
-                <ShopItem key={i} shop={m} userEmail={this.state.userEmail} path={this.state.pathName}/>
+                <ShopItem key={i} shop={m} userEmail={this.state.userEmail} path={this.state.pathName} handleupdate={this.updateRemovedOrLikedShops}/>
             )
         })
 
