@@ -36,7 +36,49 @@ class ShopItem extends Component{
             shop:{},
         }
         this.removeShop=this.removeShop.bind(this)
+        this.likeShop=this.likeShop.bind(this)
+
     }
+    likeShop(){
+        const likedArray = this.props.shop.likes
+        const userEmail = this.props.userEmail
+
+        // Update the likes list
+        var userExist = false
+
+        likedArray.map((n,i)=>{
+            if(n === userEmail){
+                userExist=true
+            }
+        })
+
+        
+        if(!userExist){
+            likedArray.push(userEmail)
+            console.log("liked",userExist)
+
+            
+        }
+
+
+        const body = {
+            likes:likedArray
+        }
+        axios.put(`http://localhost:3001/api/shop/${this.props.shop._id}`,body)
+            .then((res)=>{
+            
+                // remove shop from the list
+                this.props.handleupdate(this.props.shop)
+    
+        })
+        .catch((err)=>{
+              console.log(err);
+              
+        })
+        
+
+    }
+
     removeShop(){
         const likedArray = this.props.shop.likes
         const userEmail = this.props.userEmail
@@ -74,7 +116,7 @@ class ShopItem extends Component{
                 <Image style={styles.thumb} src={this.props.shop.imageUrl} />
                 <div style={styles.buttons}>
                     <Button color="red">Dislike</Button>
-                    <Button color="green">Like</Button>
+                    <Button color="green" onClick={this.likeShop}>Like</Button>
                 </div>
             </Segment>
         )
@@ -146,46 +188,55 @@ class ShopList extends Component {
             var shops=[]
             shopslist.map((m)=>{
                 m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.state.userLat,this.state.userLng)
-                shops.push(m)
+                //shops.push(m)
             })
 
-
-            // sort shops array by distance
-            const sortedArray = _.sortBy(shops, 'distance')
+            // add the liked shops and main shops lists variables
             const likedShops = []
+            const mainShopList =[]
 
-
-            // remove likes shops from the main list
-            sortedArray.map((m,i)=>{
+            // get likes shops from the main list
+            shopslist.map((m,i)=>{
                 // if the current path is nearby shops
                 // check if the user email is included in the likes and remove the shops
                 // if the current path is preferred shops
                 // display only liked shops
 
-                m.likes.map((n)=>{
+                // check if the shop is liked by the user
+                var userExists=false
+                m.likes.map((n,j)=>{
                     if(n === this.state.userEmail){
-                        likedShops.push(sortedArray[i])
-                        sortedArray.splice(i,1)
+                        userExists=true
                     }
                 })
 
-                
-                if(pathname ==="/nearby-shops"){
-                    // add the shops list to the state 
-                    this.setState({
-                        shopsList:sortedArray
-                    })
+                // if the user likes the shop add it to the likedshops list
+                // if not add it to the main shops list 
+                if(userExists){
+                    likedShops.push(shopslist[i])
 
-                }else if(pathname ==="/my-prefered-shops"){
-                    // add liked shops to the state
-                    this.setState({
-                        shopsList:likedShops
-                    })
+                }else{
+                    mainShopList.push(shopslist[i])
+
                 }
-                
-
-                
+  
             })
+            if(pathname ==="/nearby-shops"){
+                // add the shops list to the state 
+                this.setState({
+                    shopsList:_.sortBy(mainShopList, "distance"),  // sort the list by distance
+                    shops:shopslist
+
+                })
+
+            }else if(pathname ==="/my-prefered-shops"){
+                // add liked shops to the state
+                this.setState({
+                    shopsList:_.sortBy(likedShops, "distance"), // sort the list by distance
+                    shops:shopslist
+                })
+            }
+            
             
     }
 
@@ -207,7 +258,7 @@ class ShopList extends Component {
         }
         axios.get("http://localhost:3001/api/shop",header)
             .then((res)=>{
-            this.setState({shops:res.data.data})
+            //this.setState({shops:res.data.data})
             this.updateShopList(res.data.data,this.state.pathName)
             
             
