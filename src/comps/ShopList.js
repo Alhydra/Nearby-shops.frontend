@@ -280,6 +280,8 @@ class ShopList extends Component {
             )
         })
 
+
+
         // render shops list component
         return (
             <div>
@@ -287,7 +289,7 @@ class ShopList extends Component {
                 <div style={styles.shopList} >
                     {
                         <Grid style={{width:"60%"}} centered columns={4}>
-                            {list}
+                            {this.state.shopsList.length>0?list:<h1 style={{color:"#085394"}}>No shop found</h1>}
                         </Grid >
                     
                     }
