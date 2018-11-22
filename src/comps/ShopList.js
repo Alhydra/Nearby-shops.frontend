@@ -185,7 +185,6 @@ class ShopList extends Component {
 
     updateShopList(shopslist,pathname){
             // calculate distance from shop to user
-            var shops=[]
             shopslist.map((m)=>{
                 m.distance=getDistanceFromLatLonInKm(m.lat,m.lng,this.state.userLat,this.state.userLng)
                 //shops.push(m)

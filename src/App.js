@@ -1,17 +1,11 @@
 import React, { Component } from 'react';
 import './App.css';
-import axios from "axios"
-import { NavLink, Switch, Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 
 // Routes
-import Header from "./comps/Header"
 import ShopList from "./comps/ShopList"
 import Home from "./comps/Home"
 
-// Logout component
-const logout =()=>{
-  
-}
 class Logout extends Component {
 
   constructor(props){
