@@ -3,6 +3,7 @@ import axios from "axios"
 import { Button, Segment, Image, Grid } from 'semantic-ui-react'
 import Header from "./Header"
 import _ from "lodash"
+import moment from "moment"
 
 // calculate distance between 2 coordinance and return distance in Km
 const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2)=> {
@@ -37,6 +38,50 @@ class ShopItem extends Component{
         }
         this.removeShop=this.removeShop.bind(this)
         this.likeShop=this.likeShop.bind(this)
+        this.dislikeShop=this.dislikeShop.bind(this)
+
+
+    }
+
+    dislikeShop(){
+
+        // Use the local storage to save the disliked shops list as a String
+        // Get the current list and add the new disliked shop to it 
+        const currentList = JSON.parse(localStorage.getItem("DislikeList"))
+        var dislikeList = []
+        const shopId = this.props.shop._id
+        var time = moment(new Date())
+
+        if(currentList){
+
+            // add the previous liked shops to the list
+            // if the list is empty make a new one
+            // check if the new disliked shop already exists and add accordingly
+            dislikeList.push(...currentList)
+
+            var shopExists=false
+            currentList.map((m,i)=>{
+                if(m.id === this.props.shop._id){
+                    shopExists=true
+                }
+            })
+
+            if(!shopExists){
+                dislikeList.push({id:shopId,at:time})
+
+            }
+            
+
+
+
+
+        }else{
+            dislikeList.push({id:shopId,at:time})
+        }
+
+        this.props.handleupdate(this.props.shop)
+
+        localStorage.setItem("DislikeList",JSON.stringify(dislikeList))
 
     }
     likeShop(){
@@ -115,7 +160,7 @@ class ShopItem extends Component{
                 <h3 style={{marginBottom:10}}>{this.props.shop.name}</h3>
                 <Image style={styles.thumb} src={this.props.shop.imageUrl} />
                 <div style={styles.buttons}>
-                    <Button color="red">Dislike</Button>
+                    <Button color="red" onClick={this.dislikeShop}>Dislike</Button>
                     <Button color="green" onClick={this.likeShop}>Like</Button>
                 </div>
             </Segment>
@@ -173,7 +218,7 @@ class ShopList extends Component {
     updateRemovedOrLikedShops(shop){
 
         const currentShopsList = this.state.shopsList
-        const index = _.findIndex(currentShopsList, (shopId)=> shopId._id== shop._id)
+        const index = _.findIndex(currentShopsList, (shopId)=> shopId._id=== shop._id)
         console.log("shop index",index)
 
         currentShopsList.splice(index,1)
@@ -203,11 +248,38 @@ class ShopList extends Component {
 
                 // check if the shop is liked by the user
                 var userExists=false
+                var shopDisliked=false
                 m.likes.map((n,j)=>{
                     if(n === this.state.userEmail){
                         userExists=true
                     }
                 })
+
+                // check if the shop is disliked by the user
+                // if the disliking act is less than 120 hours, hide it
+                // if it's more than 120 minutes restore the shop to the main list
+                const currentList = JSON.parse(localStorage.getItem("DislikeList"))
+                if(currentList){
+                    currentList.map((n,j)=>{
+                        if(n.id === m._id){
+                            const shopTime= moment(n.at)
+                            const now = moment(new Date())
+                            const duration = moment.duration(now.diff(shopTime)).asMinutes()
+                            if(duration>=120){
+                                currentList.pop(j)
+                                localStorage.setItem("DislikeList",JSON.stringify(currentList))
+    
+                            }else{
+                                shopDisliked=true
+    
+                            }
+    
+                        }
+    
+                    })
+
+                }
+                
 
                 // if the user likes the shop add it to the likedshops list
                 // if not add it to the main shops list 
@@ -215,9 +287,14 @@ class ShopList extends Component {
                     likedShops.push(shopslist[i])
 
                 }else{
-                    mainShopList.push(shopslist[i])
+                    if(!shopDisliked){
+                        mainShopList.push(shopslist[i])
+                    }
 
                 }
+
+
+
   
             })
             if(pathname ==="/nearby-shops"){
